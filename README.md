@@ -8,7 +8,7 @@ Tested on Windows with Python 3.13, AMD ROCm PyTorch 2.15.0a0+rocm10.2.0a2026091
 
 ## Routing
 
-Aiter is attempted only for compatible unmasked FP16/BF16 calls without causal attention, GQA, or an attention-precision override, with matching Q/K/V device and dtype and compatible head layout. Other calls use ComfyUI's per-device attention selection; GPU calls follow the selected backend, while CPU calls use ComfyUI's CPU attention path. For example, on GPU with `--use-pytorch-cross-attention`, fallback uses PyTorch SDPA. ComfyUI's Anima attention calls PyTorch SDPA directly and bypasses `optimized_attention`, so this patch does not affect Anima's direct-SDPA path.
+Aiter is attempted only for compatible unmasked FP16/BF16 calls without causal attention, GQA, or an attention-precision override, with matching Q/K/V device and dtype and compatible head layout. Other calls use ComfyUI's per-device attention selection; GPU calls follow the selected backend, while CPU calls use ComfyUI's CPU attention path. For example, on GPU with `--use-pytorch-cross-attention`, fallback uses PyTorch SDPA. Anima's main denoiser already uses ComfyUI's `optimized_attention`, so eligible calls can use this patch. Its separate text-conditioning adapter calls PyTorch SDPA directly and is unaffected.
 
 The patch replaces any existing per-model `optimized_attention_override`; if multiple model patch nodes set one, the last connected patch wins and the earlier override is not chained. `--enable-triton-backend` enables comfy-kitchen's Triton backend; it does not select Aiter attention.
 
